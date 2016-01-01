@@ -12,10 +12,10 @@ require File.join(File.dirname(__FILE__), '..', 'app')
 require 'sinatra'
 require 'rack/test'
 require 'yajl'
-require 'database_cleaner'
 
 require 'support/database_cleaner'
 require 'support/elasticsearch'
+require 'support/factory_girl'
 
 # setup test environment
 set :environment, :test
@@ -38,7 +38,6 @@ CommentService.config[:api_key] = TEST_API_KEY
 def set_api_key_header
   current_session.header "X-Edx-Api-Key", TEST_API_KEY
 end
-
 
 
 RSpec.configure do |config|
