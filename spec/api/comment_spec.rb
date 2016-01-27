@@ -51,15 +51,15 @@ describe 'Comment API' do
 
     it 'retrieve information of a single comment and fixes incorrect child count' do
       comment = thread.comments.first
-      comment.child_count = 2000
+      comment.set(child_count: 2000)
       comment_hash = comment.to_hash(recursive: true)
       comment_hash["child_count"].should == 2000
-      get "/api/v1/comments/#{comment.id}"
+      get "/api/v1/comments/#{comment.id}", recursive: true
       last_response.should be_ok
       retrieved = parse last_response.body
       retrieved["child_count"].should == comment.children.length
 
-      comment.child_count = nil
+      comment.set(child_count: nil)
       get "/api/v1/comments/#{comment.id}"
       last_response.should be_ok
       retrieved = parse last_response.body

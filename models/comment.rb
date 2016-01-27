@@ -112,7 +112,7 @@ class Comment < Content
     self.child_count
   end
 
-  def update_cached_child_count()
+  def update_cached_child_count
     child_comments_count = Comment.where({"parent_id" => self._id}).count()
     self.set(child_count: child_comments_count)
     child_comments_count

@@ -22,7 +22,7 @@ helpers do
   def verify_or_fix_cached_comment_count(comment, comment_hash)
     unless comment_hash["children"].nil?
       if comment_hash["child_count"] != comment_hash["children"].length
-        comment.child_count = comment_hash["child_count"] = comment.update_cached_child_count(child_comments_count)
+        comment_hash["child_count"] = comment.update_cached_child_count
       end
     end
   end
