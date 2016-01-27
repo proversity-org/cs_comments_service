@@ -108,14 +108,12 @@ class Comment < Content
   end
 
   def get_cached_child_count
-    if self.child_count.nil?
-      self.child_count = update_cached_child_count
-    end
+    update_cached_child_count if self.child_count.nil?
     self.child_count
   end
 
-  def update_cached_child_count(child_comments_count=nil)
-    child_comments_count = Comment.where({"parent_id" => self._id}).count() if child_comments_count.nil?
+  def update_cached_child_count()
+    child_comments_count = Comment.where({"parent_id" => self._id}).count()
     self.set(child_count: child_comments_count)
     child_comments_count
   end

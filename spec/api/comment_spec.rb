@@ -58,6 +58,12 @@ describe 'Comment API' do
       last_response.should be_ok
       retrieved = parse last_response.body
       retrieved["child_count"].should == comment.children.length
+
+      comment.child_count = nil
+      get "/api/v1/comments/#{comment.id}"
+      last_response.should be_ok
+      retrieved = parse last_response.body
+      retrieved["child_count"].should == comment.children.length
     end
 
     it 'returns 400 when the comment does not exist' do

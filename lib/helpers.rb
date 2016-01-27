@@ -20,10 +20,10 @@ helpers do
   end
 
   def verify_or_fix_cached_comment_count(comment, comment_hash)
-    child_comments_count = Comment.where({"parent_id" => comment.id}).count()
-    if comment_hash["child_count"] != child_comments_count
-      print "\n not equal \n"
-      comment.child_count = comment_hash["child_count"] = comment.update_cached_child_count(child_comments_count)
+    unless comment_hash["children"].nil?
+      if comment_hash["child_count"] != comment_hash["children"].length
+        comment.child_count = comment_hash["child_count"] = comment.update_cached_child_count(child_comments_count)
+      end
     end
   end
 
