@@ -20,6 +20,7 @@ class CommentThread < Content
   field :commentable_id, type: String
   field :anonymous, type: Boolean, default: false
   field :anonymous_to_peers, type: Boolean, default: false
+  field :private_to_peers, type: Boolean, default: false
   field :closed, type: Boolean, default: false
   field :at_position_list, type: Array, default: []
   field :last_activity_at, type: Time

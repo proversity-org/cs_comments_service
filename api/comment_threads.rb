@@ -1,5 +1,5 @@
 get "#{APIPREFIX}/threads" do # retrieve threads by course
-  
+
   threads = Content.where({"_type" => "CommentThread", "course_id" => params["course_id"]})
   if params[:commentable_ids]
     threads = threads.in({"commentable_id" => params[:commentable_ids].split(",")})
@@ -72,12 +72,17 @@ put "#{APIPREFIX}/threads/:thread_id" do |thread_id|
 end
 
 post "#{APIPREFIX}/threads/:thread_id/comments" do |thread_id|
+  puts "-----------------------"
+  puts params
+  puts "-----------------------"
   filter_blocked_content params["body"]
   comment = Comment.new(params.slice(*%w[body course_id]))
   comment.anonymous = bool_anonymous || false
   comment.anonymous_to_peers = bool_anonymous_to_peers || false
   comment.author = user
   comment.comment_thread = thread
+  # TODO complete:
+  #comment.private = bool_private
   comment.save
   if comment.errors.any?
     error 400, comment.errors.full_messages.to_json
