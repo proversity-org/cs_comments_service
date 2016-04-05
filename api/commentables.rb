@@ -30,7 +30,7 @@ post "#{APIPREFIX}/:commentable_id/threads" do |commentable_id|
   thread.thread_type = params["thread_type"] || :discussion
   thread.anonymous = bool_anonymous || false
   thread.anonymous_to_peers = bool_anonymous_to_peers || false
-  
+  thread.private_to_peers = bool_private_to_peers || false
   if params["group_id"]
     thread.group_id = params["group_id"]
   end
@@ -38,7 +38,7 @@ post "#{APIPREFIX}/:commentable_id/threads" do |commentable_id|
   if params["context"]
     thread.context = params["context"]
   end
-  
+
   thread.author = user
   thread.save
 
