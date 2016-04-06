@@ -157,6 +157,10 @@ helpers do
       comment_threads = context_threads
     end
 
+    puts "------------"
+    puts "Always filter out private: "
+    puts "------------"
+
     if filter_flagged
       # TODO replace with aggregate query?
       comment_ids = Comment.where(:course_id => course_id).

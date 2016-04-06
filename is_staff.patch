@@ -1,0 +1,33 @@
+index ef0528d..aaaf5c8 100644
+--- a/lms/envs/common.py
++++ b/lms/envs/common.py
+@@ -2543,6 +2543,7 @@ ACCOUNT_VISIBILITY_CONFIGURATION = {
+         "email",
+         "date_joined",
+         "is_active",
++       "is_staff",
+         "bio",
+         "country",
+         "profile_image",
+diff --git a/openedx/core/djangoapps/user_api/accounts/serializers.py b/openedx/core/djangoapps/user_api/accounts/serializers.py
+index c43b21e..93bdc5b 100644
+--- a/openedx/core/djangoapps/user_api/accounts/serializers.py
++++ b/openedx/core/djangoapps/user_api/accounts/serializers.py
+@@ -76,6 +76,7 @@ class UserReadOnlySerializer(serializers.Serializer):
+             # https://docs.djangoproject.com/en/1.8/ref/databases/#fractional-seconds-support-for-time-and-datetime-fields
+             "date_joined": user.date_joined.replace(microsecond=0),
+             "is_active": user.is_active,
++           "is_staff": user.is_staff,
+             "bio": AccountLegacyProfileSerializer.convert_empty_to_None(profile.bio),
+             "country": AccountLegacyProfileSerializer.convert_empty_to_None(profile.country.code),
+             "profile_image": AccountLegacyProfileSerializer.get_profile_image(
+@@ -150,8 +151,8 @@ class AccountUserSerializer(serializers.HyperlinkedModelSerializer, ReadOnlyFiel
+     """
+     class Meta(object):
+         model = User
+-        fields = ("username", "email", "date_joined", "is_active")
+-        read_only_fields = ("username", "email", "date_joined", "is_active")
++        fields = ("username", "email", "date_joined", "is_active", "is_staff")
++        read_only_fields = ("username", "email", "date_joined", "is_active", "is_staff")
+         explicit_read_only_fields = ()
+
