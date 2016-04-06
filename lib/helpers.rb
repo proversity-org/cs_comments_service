@@ -146,6 +146,10 @@ helpers do
       comment_threads = context_threads
     end
 
+    puts "------------"
+    puts "Always filter out private: "
+    puts "------------"
+
     if filter_flagged
       self.class.trace_execution_scoped(['Custom/handle_threads_query/find_flagged']) do
         # TODO replace with aggregate query?
