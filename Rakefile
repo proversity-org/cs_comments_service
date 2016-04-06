@@ -217,6 +217,10 @@ namespace :db do
     Content.collection.find(:anonymous_to_peers=>nil).update_all({"$set" => {'anonymous_to_peers' => false}})
   end
 
+  task :add_private_to_peers => :environment do
+    Content.collection.find(:private_to_peers=>nil).update_all({"$set" => {'private_to_peers' => false}})
+  end
+
 end
 
 
@@ -322,7 +326,7 @@ namespace :search do
       move_alias_to(Content::ES_INDEX_NAME, new_index)
     end
 
-    op = in_place ? "reindex" : "(re)build index" 
+    op = in_place ? "reindex" : "(re)build index"
     LOG.info "preparing to #{op}"
 
     if in_place then
@@ -343,7 +347,7 @@ namespace :search do
     if did_alias_move then
       #  Reimport any source documents that got updated since start_time,
       #  while the alias still pointed to the old index.
-      #  Elasticsearch understands our document ids, so re-indexing the same 
+      #  Elasticsearch understands our document ids, so re-indexing the same
       #  document won't create duplicates.
       LOG.info "importing any documents that changed between #{start_time} and now"
       cursor = Content.where(:_type.in => ["Comment", "CommentThread"], :updated_at.gte => start_time)
