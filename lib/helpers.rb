@@ -123,6 +123,10 @@ helpers do
     value_to_boolean params["anonymous_to_peers"]
   end
 
+  def bool_private_to_peers
+    value_to_boolean params["private_to_peers"]
+  end
+
   def handle_paged_threads_query(paged_comment_threads)
 
   end
@@ -210,7 +214,7 @@ helpers do
 
         # The following trick makes frontend pagers work without recalculating
         # the number of all unread threads per user on every request (since the number
-        # of threads in a course could be tens or hundreds of thousands).  It has the 
+        # of threads in a course could be tens or hundreds of thousands).  It has the
         # effect of showing that there's always just one more page of results, until
         # there definitely are no more pages.  This is really only acceptable for pagers
         # that don't actually reveal the total number of pages to the user onscreen.
@@ -364,7 +368,7 @@ helpers do
       return
     end
     if CommentService.blocked_hashes.include? hash then
-      msg = t(:blocked_content_with_body_hash, :hash => hash) 
+      msg = t(:blocked_content_with_body_hash, :hash => hash)
       logger.warn msg
       error 503, [msg].to_json
     end
