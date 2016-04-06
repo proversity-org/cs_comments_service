@@ -111,4 +111,8 @@ namespace :db do
     Content.collection.find(:anonymous_to_peers => nil).update_all({'$set' => {anonymous_to_peers: false}})
   end
 
+  task :add_private_to_peers => :environment do
+    Content.collection.find(:private_to_peers=>nil).update_all({'$set' => {private_to_peers: false}})
+  end
+
 end
