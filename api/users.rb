@@ -64,9 +64,9 @@ get "#{APIPREFIX}/users/:user_id/active_threads" do |user_id|
 end
 
 put "#{APIPREFIX}/users/:user_id" do |user_id|
-  puts "-----------------------#{ request.env }"
   user = User.find_or_create_by(external_id: user_id)
-  user.update_attributes(params.slice(*%w[username default_sort_key]))
+  user.update_attributes(params.slice(*%w[username default_sort_key is_staff]))
+
   if user.errors.any?
     error 400, user.errors.full_messages.to_json
   else

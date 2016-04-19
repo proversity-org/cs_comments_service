@@ -213,7 +213,7 @@ describe "app" do
         end
 
         it "only returns threads with non-standalone activity from the specified user"  do
-          # `setup_10_threads` creates a thread "t3" and 5 comments all owned by user 103 
+          # `setup_10_threads` creates a thread "t3" and 5 comments all owned by user 103
           # we are hijacking a course thread comment owned by user 103 and making it owned
           # by user 100 instead, so this user has a comment on someone else's thread
           @comments["t3 c4"].author = @users["u100"]
@@ -274,7 +274,7 @@ describe "app" do
         rs = thread_result 100, course_id: "xyz"
         rs.length.should == 1
         check_thread_result_json(@users["u100"], @threads["t0"], rs.first)
-      end      
+      end
 
       it "only returns threads from the specified course" do
         @threads.each do |k, v|
@@ -338,7 +338,7 @@ describe "app" do
           result["page"].should == 2
         end
         it "orders correctly across pages" do
-          expected_order = @threads.keys.reverse 
+          expected_order = @threads.keys.reverse
           actual_order = []
           per_page = 3
           num_pages = (@threads.length + per_page - 1) / per_page
