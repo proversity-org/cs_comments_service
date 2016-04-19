@@ -177,26 +177,20 @@ helpers do
           where(:private_to_peers => false).
           collect{|c| c.comment_thread_id}.uniq
 
-        if user.is_staff
-          comment_ids2 = Comment.where(:course_id => course_id).
-            where(:private_to_peers => true).
-            collect{|c| c.comment_thread_id}.uniq
-
-          thread_ids2 = comment_threads.where(:private_to_peers => true).
-            collect{|c| c.id}
-        else
-          comment_ids2 = Comment.where(:course_id => course_id).
-            where(:private_to_peers => true, :author_id => user_id).
-            collect{|c| c.comment_thread_id}.uniq
-
-          thread_ids2 = comment_threads.where(:private_to_peers => true, :author_id => user_id).
-            collect{|c| c.id}
-        end
-
         thread_ids = comment_threads.where(:private_to_peers => false).
           collect{|c| c.id}
 
-        comment_threads = comment_threads.in({"_id" => (comment_ids + comment_ids2 + thread_ids + thread_ids2).uniq})
+        p_filter = {:private_to_peers => true}
+        p_filter = user.is_staff ? p_filter : p_filter.merge({:author_id => user_id})
+
+        comment_ids_pri = Comment.where(:course_id => course_id).
+          where(p_filter).collect{|c| c.comment_thread_id}.uniq
+
+        thread_ids_pri = comment_threads.where(p_filter).
+          collect{|c| c.id}
+
+        comment_threads = comment_threads.in({"_id" =>
+          (comment_ids + comment_ids_pri + thread_ids + thread_ids_pri).uniq})
       end
     end
 
