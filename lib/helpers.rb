@@ -153,10 +153,6 @@ helpers do
       comment_threads = context_threads
     end
 
-    puts "------------"
-    puts "Always filter out private: "
-    puts "------------"
-
     if filter_flagged
       # TODO replace with aggregate query?
       comment_ids = Comment.where(:course_id => course_id).
@@ -177,7 +173,38 @@ helpers do
       comment_threads = comment_threads.where({"thread_type" => :question}).nin({"_id" => endorsed_thread_ids})
     end
 
+    filter_notprivate = true
+    if filter_notprivate
+      self.class.trace_execution_scoped(['Custom/handle_threads_query/find_notprivate']) do
+        comment_ids = Comment.where(:course_id => course_id).
+          where(:private_to_peers => false).
+          collect{|c| c.comment_thread_id}.uniq
+
+        if user.is_staff
+          comment_ids2 = Comment.where(:course_id => course_id).
+            where(:private_to_peers => true).
+            collect{|c| c.comment_thread_id}.uniq
+
+          thread_ids2 = comment_threads.where(:private_to_peers => true).
+            collect{|c| c.id}
+        else
+          comment_ids2 = Comment.where(:course_id => course_id).
+            where(:private_to_peers => true, :author_id => user_id).
+            collect{|c| c.comment_thread_id}.uniq
+
+          thread_ids2 = comment_threads.where(:private_to_peers => true, :author_id => user_id).
+            collect{|c| c.id}
+        end
+
+        thread_ids = comment_threads.where(:private_to_peers => false).
+          collect{|c| c.id}
+
+        comment_threads = comment_threads.in({"_id" => (comment_ids + comment_ids2 + thread_ids + thread_ids2).uniq})
+      end
+    end
+
     sort_criteria = get_sort_criteria(sort_key)
+
     if not sort_criteria
       {}
     else
