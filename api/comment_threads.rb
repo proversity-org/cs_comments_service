@@ -5,10 +5,6 @@ get "#{APIPREFIX}/threads" do # retrieve threads by course
     threads = threads.in({"commentable_id" => params[:commentable_ids].split(",")})
   end
 
-  puts "----------------"
-  puts "Gets all content for coursess"
-  puts "----------------"
-
   handle_threads_query(
     threads,
     params["user_id"],
@@ -20,7 +16,7 @@ get "#{APIPREFIX}/threads" do # retrieve threads by course
     params["sort_key"],
     params["sort_order"],
     params["page"],
-    params["per_page"],
+    params["per_page"]
   ).to_json
 end
 
