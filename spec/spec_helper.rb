@@ -49,6 +49,12 @@ end
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods
+  # Use color in STDOUT
+  config.color_enabled = true
+  # Use color not only in STDOUT but also in pagers and files
+  config.tty = true
+  # Use the specified formatter
+  config.formatter = :documentation
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.filter_run focus: true
   config.run_all_when_everything_filtered = true
@@ -78,7 +84,7 @@ def init_without_subscriptions
   Content.mongo_session[:blocked_hash].drop
   delete_es_index
   create_es_index
-  
+
   commentable = Commentable.new("question_1")
 
   users = (1..10).map{|id| create_test_user(id)}
@@ -225,18 +231,18 @@ def check_thread_result(user, thread, hash, is_json=false)
 
   hash["title"].should == thread.title
   hash["body"].should == thread.body
-  hash["course_id"].should == thread.course_id 
-  hash["anonymous"].should == thread.anonymous 
-  hash["anonymous_to_peers"].should == thread.anonymous_to_peers 
-  hash["commentable_id"].should == thread.commentable_id 
-  hash["at_position_list"].should == thread.at_position_list 
-  hash["closed"].should == thread.closed 
+  hash["course_id"].should == thread.course_id
+  hash["anonymous"].should == thread.anonymous
+  hash["anonymous_to_peers"].should == thread.anonymous_to_peers
+  hash["commentable_id"].should == thread.commentable_id
+  hash["at_position_list"].should == thread.at_position_list
+  hash["closed"].should == thread.closed
   hash["user_id"].should == thread.author.id
   hash["username"].should == thread.author.username
-  hash["votes"]["point"].should == thread.votes["point"] 
-  hash["votes"]["count"].should == thread.votes["count"] 
-  hash["votes"]["up_count"].should == thread.votes["up_count"] 
-  hash["votes"]["down_count"].should == thread.votes["down_count"] 
+  hash["votes"]["point"].should == thread.votes["point"]
+  hash["votes"]["count"].should == thread.votes["count"]
+  hash["votes"]["up_count"].should == thread.votes["up_count"]
+  hash["votes"]["down_count"].should == thread.votes["down_count"]
   hash["abuse_flaggers"].should == thread.abuse_flaggers
   hash["tags"].should == []
   hash["type"].should == "thread"
@@ -249,7 +255,7 @@ def check_thread_result(user, thread, hash, is_json=false)
   if is_json
     hash["id"].should == thread._id.to_s
     hash["created_at"].should == thread.created_at.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
-    hash["updated_at"].should == thread.updated_at.utc.strftime("%Y-%m-%dT%H:%M:%SZ") 
+    hash["updated_at"].should == thread.updated_at.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
   else
     hash["created_at"].should == thread.created_at
     hash["updated_at"].should == thread.updated_at
@@ -257,7 +263,7 @@ def check_thread_result(user, thread, hash, is_json=false)
 
   if user.nil?
     hash["unread_comments_count"].should == thread.comments.length
-    hash["read"].should == false 
+    hash["read"].should == false
   else
     expected_unread_cnt = thread.comments.length # initially assume nothing has been read
     read_states = user.read_states.where(course_id: thread.course_id).to_a
@@ -394,7 +400,7 @@ end
 # add standalone threads and comments to the @threads and @comments hashes
 # using the namespace "standalone t#{index}" for threads and "standalone t#{index} c#{i}" for comments
 # takes an index param if used within an iterator, otherwise will namespace using 0 for thread index
-# AKA this will overwrite "standalone t0" each time it is called. 
+# AKA this will overwrite "standalone t0" each time it is called.
 def make_standalone_thread_with_comments(author, index=0)
   thread = make_thread(
     author,
