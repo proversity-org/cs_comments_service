@@ -47,6 +47,12 @@ end
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods
+  # Use color in STDOUT
+  config.color_enabled = true
+  # Use color not only in STDOUT but also in pagers and files
+  config.tty = true
+  # Use the specified formatter
+  config.formatter = :documentation
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.filter_run focus: true
   config.run_all_when_everything_filtered = true
@@ -74,11 +80,10 @@ def block_post_body(body='blocked post')
   CommentService.blocked_hashes = Content.mongo_client[:blocked_hash].find(nil, projection: {hash: 1}).map do |d|
     d['hash']
   end
-
-  blocked_hash
 end
 
 def init_without_subscriptions
+
   commentable = Commentable.new("question_1")
 
   users = (1..10).map { |id| create_test_user(id) }
@@ -203,6 +208,7 @@ def check_thread_result(user, thread, hash, is_json=false)
     hash["created_at"].should == thread.created_at.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
     hash["updated_at"].should == thread.updated_at.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
     hash["last_activity_at"].should == thread.last_activity_at.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+
   else
     hash["created_at"].should == thread.created_at
     hash["updated_at"].should == thread.updated_at
@@ -361,7 +367,7 @@ end
 # add standalone threads and comments to the @threads and @comments hashes
 # using the namespace "standalone t#{index}" for threads and "standalone t#{index} c#{i}" for comments
 # takes an index param if used within an iterator, otherwise will namespace using 0 for thread index
-# AKA this will overwrite "standalone t0" each time it is called. 
+# AKA this will overwrite "standalone t0" each time it is called.
 def make_standalone_thread_with_comments(author, index=0)
   thread = make_thread(
       author,
