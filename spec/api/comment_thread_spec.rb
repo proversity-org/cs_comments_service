@@ -31,15 +31,12 @@ describe "app" do
 
         it "does not return private threads unless user is staff" do
           author = create_test_user(Random.new)
-
           staff = create_test_user(Random.new)
           staff.is_staff = true;
           staff.save!
-
           @threads["t1"].author = author
           @threads["t1"].private_to_peers = true
           @threads["t1"].save!
-
           rs = thread_result course_id: DFLT_COURSE_ID, user_id: author.id
           rs.length.should == 10
           rs = thread_result course_id: DFLT_COURSE_ID, user_id: staff.id
