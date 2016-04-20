@@ -16,14 +16,45 @@ describe "app" do
         parse(last_response.body)["collection"]
       end
 
+      context "when applying default filtering" do
+        it "does not return private threads unless user is author" do
+          author = create_test_user(Random.new)
+          not_author = create_test_user(Random.new)
+          @threads["t1"].author = author
+          @threads["t1"].private_to_peers = true
+          @threads["t1"].save!
+          rs = thread_result course_id: DFLT_COURSE_ID, user_id: author.id
+          rs.length.should == 10
+          rs = thread_result course_id: DFLT_COURSE_ID, user_id: not_author.id
+          rs.length.should == 9
+        end
+
+        it "does not return private threads unless user is staff" do
+          author = create_test_user(Random.new)
+
+          staff = create_test_user(Random.new)
+          staff.is_staff = true;
+          staff.save!
+
+          @threads["t1"].author = author
+          @threads["t1"].private_to_peers = true
+          @threads["t1"].save!
+
+          rs = thread_result course_id: DFLT_COURSE_ID, user_id: author.id
+          rs.length.should == 10
+          rs = thread_result course_id: DFLT_COURSE_ID, user_id: staff.id
+          rs.length.should == 10
+        end
+      end
+
       context "when filtering by course" do
         it "returns only threads with matching course id" do
-          [@threads["t1"], @threads["t2"]].each do |t| 
+          [@threads["t1"], @threads["t2"]].each do |t|
             t.course_id = "abc"
-            t.save! 
-          end 
+            t.save!
+          end
           rs = thread_result course_id: "abc", sort_order: "asc"
-          rs.length.should == 2 
+          rs.length.should == 2
           rs.each_with_index { |res, i|
             check_thread_result_json(nil, @threads["t#{i+1}"], res)
             res["course_id"].should == "abc"
@@ -89,7 +120,7 @@ describe "app" do
           @threads["t3"].group_id = 100
           @threads["t3"].save!
           rs = thread_result course_id: "omg", group_id: 100, sort_order: "asc"
-          rs.length.should == 2 
+          rs.length.should == 2
           rs.each_with_index { |res, i|
             check_thread_result_json(nil, @threads["t#{i+1}"], res)
             res["course_id"].should == "omg"
@@ -97,7 +128,7 @@ describe "app" do
         end
         it "returns an empty result when no threads match course_id" do
           rs = thread_result course_id: 99
-          rs.length.should == 0 
+          rs.length.should == 0
         end
         it "returns only group-less threads when no threads have matching group id" do
           @threads["t1"].group_id = 123
@@ -110,19 +141,19 @@ describe "app" do
             @threads["t1"].abuse_flaggers = [1]
             @threads["t1"].save!
             rs = thread_result course_id: DFLT_COURSE_ID, flagged: true
-            rs.length.should == 1 
+            rs.length.should == 1
             check_thread_result_json(nil, @threads["t1"], rs.first)
           end
           it "returns threads that have flagged comments" do
-            @comments["t2 c3"].abuse_flaggers = [1]            
+            @comments["t2 c3"].abuse_flaggers = [1]
             @comments["t2 c3"].save!
             rs = thread_result course_id: DFLT_COURSE_ID, flagged: true
-            rs.length.should == 1 
+            rs.length.should == 1
             check_thread_result_json(nil, @threads["t2"], rs.first)
           end
           it "returns an empty result when no posts were flagged" do
             rs = thread_result course_id: DFLT_COURSE_ID, flagged: true
-            rs.length.should == 0 
+            rs.length.should == 0
           end
         end
         it "filters unread posts" do
@@ -180,12 +211,12 @@ describe "app" do
         end
         it "correctly considers read state" do
           user = create_test_user(123)
-          [@threads["t1"], @threads["t2"]].each do |t| 
+          [@threads["t1"], @threads["t2"]].each do |t|
             t.course_id = "abc"
-            t.save! 
-          end 
+            t.save!
+          end
           rs = thread_result course_id: "abc", user_id: "123", sort_order: "asc"
-          rs.length.should == 2 
+          rs.length.should == 2
           rs.each_with_index { |result, i|
             check_thread_result_json(user, @threads["t#{i+1}"], result)
             result["course_id"].should == "abc"
@@ -230,7 +261,7 @@ describe "app" do
         context "sorting" do
           def thread_result_order (sort_key, sort_order)
             results = thread_result course_id: DFLT_COURSE_ID, sort_key: sort_key, sort_order: sort_order
-            results.length.should == 10 
+            results.length.should == 10
             results.map {|t| t["title"]}
           end
 
@@ -263,7 +294,7 @@ describe "app" do
             t5c.update(body: "changed!")
             t5c.save!
             actual_order = thread_result_order("activity", "desc")
-            expected_order = move_to_front(@default_order, "t5") 
+            expected_order = move_to_front(@default_order, "t5")
             actual_order.should == expected_order
           end
           it "sorts using last activity / ascending" do
@@ -271,7 +302,7 @@ describe "app" do
             t5c.update(body: "changed!")
             t5c.save!
             actual_order = thread_result_order("activity", "asc")
-            expected_order = move_to_end(@default_order.reverse, "t5") 
+            expected_order = move_to_end(@default_order.reverse, "t5")
             actual_order.should == expected_order
           end
           it "sorts using vote count / descending" do
@@ -280,7 +311,7 @@ describe "app" do
             user.vote(t5, :up)
             t5.save!
             actual_order = thread_result_order("votes", "desc")
-            expected_order = move_to_front(@default_order, "t5") 
+            expected_order = move_to_front(@default_order, "t5")
             actual_order.should == expected_order
           end
           it "sorts using vote count / ascending" do
@@ -289,19 +320,19 @@ describe "app" do
             user.vote(t5, :up)
             t5.save!
             actual_order = thread_result_order("votes", "asc")
-            expected_order = move_to_end(@default_order, "t5") 
+            expected_order = move_to_end(@default_order, "t5")
             actual_order.should == expected_order
           end
           it "sorts using comment count / descending" do
             make_comment(@threads["t5"].author, @threads["t5"], "extra comment")
             actual_order = thread_result_order("comments", "desc")
-            expected_order = move_to_front(@default_order, "t5") 
+            expected_order = move_to_front(@default_order, "t5")
             actual_order.should == expected_order
           end
           it "sorts using comment count / ascending" do
             make_comment(@threads["t5"].author, @threads["t5"], "extra comment")
             actual_order = thread_result_order("comments", "asc")
-            expected_order = move_to_end(@default_order, "t5") 
+            expected_order = move_to_end(@default_order, "t5")
             actual_order.should == expected_order
           end
           it "sorts pinned items first" do
@@ -332,7 +363,7 @@ describe "app" do
             expected_order = move_to_front(@default_order.reverse, "t7", "t8")
             actual_order.should == expected_order
           end
-          
+
           context "pagination" do
             def thread_result_page (sort_key, sort_order, page, per_page, user_id=nil, unread=false)
               get "/api/v1/threads", course_id: DFLT_COURSE_ID, sort_key: sort_key, sort_order: sort_order, page: page, per_page: per_page, user_id: user_id, unread: unread
@@ -413,7 +444,7 @@ describe "app" do
             end
           end
         end
-        
+
       end
 
       def test_unicode_data(text)
@@ -430,7 +461,7 @@ describe "app" do
     describe "GET /api/v1/threads/:thread_id" do
 
       before(:each) { init_without_subscriptions }
-      
+
       it "returns JSON" do
         thread = CommentThread.first
         get "/api/v1/threads/#{thread.id}"
@@ -470,7 +501,7 @@ describe "app" do
         # We need to clear the IdentityMap after getting the expected data to
         # ensure that this spec fails when it should. If we don't do this, then
         # in the cases where the User is fetched without its username, the spec
-        # won't fail because the User will already be in the identity map. 
+        # won't fail because the User will already be in the identity map.
         Mongoid::IdentityMap.clear
 
         get "/api/v1/threads/#{thread.id}", {:user_id => thread.author_id, :mark_as_read => true}
@@ -557,28 +588,28 @@ describe "app" do
           @threads.each do |n, thread|
             res = thread_result thread.id, {}
             check_thread_response_paging_json thread, res, 0, nil, false
-          end 
+          end
         end
 
         it "skips the specified number of responses" do
           @threads.each do |n, thread|
             res = thread_result thread.id, {:resp_skip => 1}
             check_thread_response_paging_json thread, res, 1, nil, false
-          end 
+          end
         end
 
         it "limits the specified number of responses" do
           @threads.each do |n, thread|
             res = thread_result thread.id, {:resp_limit => 2}
             check_thread_response_paging_json thread, res, 0, 2, false
-          end 
+          end
         end
 
         it "skips and limits responses" do
           @threads.each do |n, thread|
             res = thread_result thread.id, {:resp_skip => 3, :resp_limit => 5}
             check_thread_response_paging_json thread, res, 3, 5, false
-          end 
+          end
         end
 
       end
@@ -587,7 +618,7 @@ describe "app" do
     describe "PUT /api/v1/threads/:thread_id" do
 
       before(:each) { init_without_subscriptions }
-      
+
       it "update information of comment thread and don't mark thread as read" do
         thread = CommentThread.first
         comment = thread.comments.first
