@@ -134,6 +134,15 @@ describe "app" do
         c.should_not be_nil
         c["anonymous"].should be_true
       end
+      it "allows private thread" do
+        old_count = CommentThread.count
+        post 'api/v1/question_1/threads', default_params.merge(private_to_peers: true)
+        last_response.should be_ok
+        CommentThread.count.should == old_count + 1
+        c = CommentThread.where(title: "Interesting question").first
+        c.should_not be_nil
+        c["private_to_peers"].should be_true
+      end
       it "create a new comment thread for a new commentable object" do
         post '/api/v1/does_not_exist/threads', default_params
         last_response.should be_ok
