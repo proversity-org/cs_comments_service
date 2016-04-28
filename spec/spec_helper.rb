@@ -42,6 +42,12 @@ end
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods
+  # Use color in STDOUT
+  config.color_enabled = true
+  # Use color not only in STDOUT but also in pagers and files
+  config.tty = true
+  # Use the specified formatter
+  config.formatter = :documentation
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.filter_run focus: true
   config.run_all_when_everything_filtered = true
@@ -341,7 +347,7 @@ end
 # add standalone threads and comments to the @threads and @comments hashes
 # using the namespace "standalone t#{index}" for threads and "standalone t#{index} c#{i}" for comments
 # takes an index param if used within an iterator, otherwise will namespace using 0 for thread index
-# AKA this will overwrite "standalone t0" each time it is called. 
+# AKA this will overwrite "standalone t0" each time it is called.
 def make_standalone_thread_with_comments(author, index=0)
   thread = make_thread(
       author,

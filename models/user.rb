@@ -8,6 +8,7 @@ class User
   field :external_id, type: String
   field :username, type: String
   field :default_sort_key, type: String, default: "date"
+  field :is_staff, type: Boolean, default: false
 
   embeds_many :read_states
   has_many :comments, inverse_of: :author
@@ -19,6 +20,7 @@ class User
   validates_presence_of :username
   validates_uniqueness_of :external_id
   validates_uniqueness_of :username
+  validates_presence_of :is_staff
 
   index( {external_id: 1}, {unique: true, background: true} )
 
@@ -44,7 +46,7 @@ class User
                         "id" => id,
                         "upvoted_ids" => upvoted_ids,
                         "downvoted_ids" => downvoted_ids,
-                        "default_sort_key" => default_sort_key
+                        "default_sort_key" => default_sort_key,
                        )
     end
     if params[:course_id]

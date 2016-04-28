@@ -16,6 +16,34 @@ describe "app" do
         parse(last_response.body)["collection"]
       end
 
+      context "when applying default filtering" do
+        it "does not return private threads unless user is author" do
+          author = create_test_user(Random.new)
+          not_author = create_test_user(Random.new)
+          @threads["t1"].author = author
+          @threads["t1"].private_to_peers = true
+          @threads["t1"].save!
+          rs = thread_result course_id: DFLT_COURSE_ID, user_id: author.id
+          rs.length.should == 10
+          rs = thread_result course_id: DFLT_COURSE_ID, user_id: not_author.id
+          rs.length.should == 9
+        end
+
+        it "does not return private threads unless user is staff" do
+          author = create_test_user(Random.new)
+          staff = create_test_user(Random.new)
+          staff.is_staff = true;
+          staff.save!
+          @threads["t1"].author = author
+          @threads["t1"].private_to_peers = true
+          @threads["t1"].save!
+          rs = thread_result course_id: DFLT_COURSE_ID, user_id: author.id
+          rs.length.should == 10
+          rs = thread_result course_id: DFLT_COURSE_ID, user_id: staff.id
+          rs.length.should == 10
+        end
+      end
+
       context "when filtering by course" do
         it "returns only threads with matching course id" do
           [@threads["t1"], @threads["t2"]].each do |t|
@@ -231,7 +259,7 @@ describe "app" do
           def thread_result_order (sort_key, sort_order)
             results = thread_result course_id: DFLT_COURSE_ID, sort_key: sort_key, sort_order: sort_order
             results.length.should == 10
-            results.map { |t| t["title"] }
+            results.map {|t| t["title"]}
           end
 
           def move_to_end(ary, *vals)
