@@ -59,7 +59,7 @@ class CommentThread < Content
   has_many :comments, dependent: :destroy # Use destroy to invoke callback on the top-level comments
   has_many :activities, autosave: true
 
-  attr_accessible :title, :body, :course_id, :commentable_id, :anonymous, :anonymous_to_peers, :closed, :thread_type
+  attr_accessible :title, :body, :course_id, :commentable_id, :anonymous, :anonymous_to_peers, :private_to_peers, :closed, :thread_type
 
   validates_presence_of :thread_type
   validates_presence_of :context
@@ -123,7 +123,7 @@ class CommentThread < Content
 
   def to_hash(params={})
     as_document
-      .slice(THREAD_TYPE, TITLE, BODY, COURSE_ID, ANONYMOUS, ANONYMOUS_TO_PEERS, COMMENTABLE_ID, CREATED_AT, UPDATED_AT, AT_POSITION_LIST, CLOSED, CONTEXT, LAST_ACTIVITY_AT)
+      .slice(THREAD_TYPE, TITLE, BODY, COURSE_ID, ANONYMOUS, ANONYMOUS_TO_PEERS, PRIVATE_TO_PEERS, COMMENTABLE_ID, CREATED_AT, UPDATED_AT, AT_POSITION_LIST, CLOSED, CONTEXT, LAST_ACTIVITY_AT)
       .merge!("id" => _id,
               "user_id" => author_id,
               "username" => author_username,
