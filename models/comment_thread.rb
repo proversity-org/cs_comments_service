@@ -23,6 +23,7 @@ class CommentThread < Content
   field :commentable_id, type: String
   field :anonymous, type: Boolean, default: false
   field :anonymous_to_peers, type: Boolean, default: false
+  field :private_to_peers, type: Boolean, default: false
   field :closed, type: Boolean, default: false
   field :at_position_list, type: Array, default: []
   field :last_activity_at, type: Time
@@ -122,7 +123,7 @@ class CommentThread < Content
 
   def to_hash(params={})
     as_document
-      .slice(THREAD_TYPE, TITLE, BODY, COURSE_ID, ANONYMOUS, ANONYMOUS_TO_PEERS, COMMENTABLE_ID, CREATED_AT, UPDATED_AT, AT_POSITION_LIST, CLOSED, CONTEXT, LAST_ACTIVITY_AT)
+      .slice(THREAD_TYPE, TITLE, BODY, COURSE_ID, ANONYMOUS, ANONYMOUS_TO_PEERS, PRIVATE_TO_PEERS, COMMENTABLE_ID, CREATED_AT, UPDATED_AT, AT_POSITION_LIST, CLOSED, CONTEXT, LAST_ACTIVITY_AT)
       .merge!("id" => _id,
               "user_id" => author_id,
               "username" => author_username,
@@ -133,7 +134,6 @@ class CommentThread < Content
               "group_id" => group_id,
               "pinned" => pinned?,
               "comments_count" => comment_count)
-
   end
 
   def comment_thread_id
