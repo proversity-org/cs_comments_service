@@ -4,6 +4,7 @@ ENDORSED = "endorsed".freeze
 ENDORSEMENT = "endorsement".freeze
 ANONYMOUS = "anonymous".freeze
 ANONYMOUS_TO_PEERS = "anonymous_to_peers".freeze
+PRIVATE_TO_PEERS = "private_to_peers".freeze
 CREATED_AT = "created_at".freeze
 UPDATED_AT = "updated_at".freeze
 AT_POSITION_LIST = "at_position_list".freeze
